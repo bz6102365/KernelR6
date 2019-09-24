@@ -10,7 +10,7 @@
 
 using namespace std;
 
-KeInterface Driver("\\\\.\\mydriverver1");
+KeInterface Driver("\\\\.\\linkdriver1");
 DWORD64 ProcessId;
 DWORD64 ClientAddress;
 
