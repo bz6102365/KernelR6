@@ -1,6 +1,6 @@
 # KernelR6
 Pasted from Zer0Mem0ry(https://github.com/Zer0Mem0ry/KernelBhop) and make it work with X64. Include simple R6 cheat as demo.
-Sign driver and disable secure boot to use it or make it compatible with a driver mapper.
+Sign driver and disable secure boot to use it or make it compatible with a driver mapper(it must be detected with mapper, you should modify it a lot).
 
 Methods with KeInterface:
 
