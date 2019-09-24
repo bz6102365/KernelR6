@@ -21,3 +21,5 @@ Write max to 16 bytes to WriteAddress. If you want to write float or something o
 
 setModule(string *target, int size)
 Set new target image name to driver. You can sign driver once and make it work with most of games.
+
+If you have any question, contact me with bz6102365@live.com
