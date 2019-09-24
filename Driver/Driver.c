@@ -223,8 +223,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject,
 	//DbgPrintEx(0, 0, "buffersize=%d\n", moduleName.MaximumLength);
 	PsSetLoadImageNotifyRoutine(ImageLoadCallback);
 
-	RtlInitUnicodeString(&dev, L"\\Device\\mydriverver1");
-	RtlInitUnicodeString(&dos, L"\\DosDevices\\mydriverver1");
+	RtlInitUnicodeString(&dev, L"\\Device\\linkdriver1");
+	RtlInitUnicodeString(&dos, L"\\DosDevices\\linkdriver1");
 
 	IoCreateDevice(pDriverObject, 0, &dev, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &pDeviceObject);
 	IoCreateSymbolicLink(&dos, &dev);
