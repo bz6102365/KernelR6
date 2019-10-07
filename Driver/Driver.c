@@ -5,7 +5,7 @@
 // Request to write virtual user memory (memory of a program) from kernel space
 #define IO_WRITE_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0702 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 
-// Request to retrieve the process id of csgo process, from kernel space
+// Request to retrieve the process id of target process, from kernel space
 #define IO_GET_ID_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0703 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 
 // Request to retrieve the base address of client.dll in csgo.exe from kernel space
@@ -91,8 +91,6 @@ NTSTATUS KeWriteVirtualMemory(PEPROCESS Process, PVOID SourceAddress, PVOID Targ
 
 WCHAR moduleName[256] = L"RainbowSix.exe";
 
-// set a callback for every PE image loaded to user memory
-// then find the client.dll & csgo.exe using the callback
 PLOAD_IMAGE_NOTIFY_ROUTINE ImageLoadCallback(PUNICODE_STRING FullImageName,
 	HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
