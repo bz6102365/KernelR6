@@ -1,5 +1,5 @@
 # KernelR6
-Simple X64 RPM/WPM driver. Include simple R6 cheat as demo (offsets oudated).
+Simple X64 RPM/WPM driver. Include simple R6 cheat as demo.
 Sign driver and disable secure boot to use it or make it compatible with a driver mapper(it must be detected with mapper, you should modify it a lot).
 
 Methods with KeInterface:
