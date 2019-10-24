@@ -12,7 +12,7 @@
 
 using namespace std;
 
-KeInterface Driver("\\\\.\\linkdriver1");
+KeInterface Driver("\\\\.\\mydriverver1");
 DWORD64 ProcessId = Driver.GetTargetPid();
 DWORD64 ClientAddress = Driver.GetClientModule();
 
@@ -132,13 +132,31 @@ void norecoil_temp()
 	//Sleep(500); 
 }
 
+void highFireRate()
+{
+	DWORD64 LocalPlayer = getLocalPlayer();
+	DWORD64 temp = Driver.ReadVirtualMemory<DWORD64>(ProcessId, LocalPlayer + 0x78, sizeof(DWORD64));
+	temp = Driver.ReadVirtualMemory<DWORD64>(ProcessId, temp + 0xC8, sizeof(DWORD64));
+	float curfr = 0;
+	curfr= Driver.ReadVirtualMemory<float>(ProcessId, temp + 0x248, sizeof(float));
+	DWORD64 WeaponFR = temp + 0x248;
+	printf("%f\n", curfr);
+	float a = curfr * 2;
+	Driver.WriteVirtualMemory64(ProcessId, WeaponFR, *(PULONG64)(&a), sizeof(float));
+	Sleep(500);
+}
+
 void norecoil()
 {
-	uint64_t patch_address = ClientAddress + PATCH_DRONEFIX;
-	BYTE fix_b[8] = { 0x0f, 0x2f, 0x3d, 0x36, 0xEA, 0x84, 0x02, 0x00 };
-	Driver.WriteVirtualMemory64(ProcessId, patch_address, *(PULONG64)(&fix_b), 7 * sizeof(byte));
-	float floatval = 1.0f;
-	Driver.WriteVirtualMemory64(ProcessId, ClientAddress + RDATA_RECOIL, *(PULONG64)(&floatval), sizeof(float));
+	DWORD64 LocalPlayer = getLocalPlayer();
+	DWORD64 temp = Driver.ReadVirtualMemory<DWORD64>(ProcessId, LocalPlayer + 0x78, sizeof(DWORD64));
+	temp = Driver.ReadVirtualMemory<DWORD64>(ProcessId, temp + 0xC8, sizeof(DWORD64));
+	DWORD64 Weapon = Driver.ReadVirtualMemory<DWORD64>(ProcessId, temp + 0x208, sizeof(DWORD64));
+	float a = 0.0f;
+	bool b = 0;
+	Driver.WriteVirtualMemory64(ProcessId, Weapon + 0x15C, *(PULONG64)(&a), sizeof(float));
+	Driver.WriteVirtualMemory64(ProcessId, Weapon + 0x14C, *(PULONG64)(&a), sizeof(float));
+	Driver.WriteVirtualMemory64(ProcessId, Weapon + 0x168, *(PULONG64)(&b), sizeof(bool));
 }
 
 void nospread()
@@ -195,4 +213,26 @@ int getStatus() {
 	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, ClientAddress + ROUNDMANAGER, sizeof(DWORD64));
 	int res = Driver.ReadVirtualMemory<int>(ProcessId, chain + 0x2E8, sizeof(int));
 	return res;
+}
+
+void unlockAll()
+{
+	BYTE tmp = 0;
+	const BYTE zero = 0x0;
+	tmp = Driver.ReadVirtualMemory<int>(ProcessId, ClientAddress + 0x133FB18, sizeof(tmp));
+	if (tmp == 0x1)
+	{
+		Driver.WriteVirtualMemory64(ProcessId, ClientAddress + 0x133FB18, *(PULONG64)(&zero), sizeof(byte));
+	}
+}
+
+void setAmmo(int mount)
+{
+	uint64_t chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, ClientAddress + OFFSET_AMMO_MANAGER, sizeof(DWORD64));
+	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, chain + 0x0, sizeof(DWORD64));
+	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, chain + 0x60, sizeof(DWORD64));
+	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, chain + 0x328, sizeof(DWORD64));
+	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, chain + 0x140, sizeof(DWORD64));
+	chain = Driver.ReadVirtualMemory<DWORD64>(ProcessId, chain + 0x180, sizeof(DWORD64));
+	Driver.WriteVirtualMemory64(ProcessId, chain + 0xCC, *(PULONG64)(&mount), sizeof(int));
 }
