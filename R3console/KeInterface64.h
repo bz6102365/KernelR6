@@ -2,7 +2,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<locale>
 #include<string>
+#include"IOCTL.h"
+#include"type.h"
 using namespace std;
+
 std::wstring toWstring(std::string str)
 {
 	using namespace std;
@@ -16,63 +19,6 @@ std::wstring toWstring(std::string str)
 
 	return wstr;
 }
-
-/* IOCTL Codes needed for our driver */
-
-// Request to read virtual user memory (memory of a program) from kernel space
-#define IO_READ_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0701 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-// Request to write virtual user memory (memory of a program) from kernel space
-#define IO_WRITE_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0702 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-// Request to retrieve the process id of csgo process, from kernel space
-#define IO_GET_ID_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0703 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-// Request to retrieve the base address of client.dll in csgo.exe from kernel space
-#define IO_GET_MODULE_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0704 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-// Set new process name
-#define IO_GET_MODULE_SET CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0705/* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-#define IO_WRITE_REQUEST64 CTL_CODE(FILE_DEVICE_UNKNOWN, 0x0706 /* Our Custom Code */, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
-
-typedef struct _KERNEL_READ_REQUEST
-{
-	ULONG64 ProcessId;
-
-	ULONG64 Address;
-	ULONG64 Response;
-	ULONG64 Size;
-
-} KERNEL_READ_REQUEST, * PKERNEL_READ_REQUEST;
-
-typedef struct _KERNEL_WRITE_REQUEST
-{
-	ULONG64 ProcessId;
-
-	ULONG64 Address;
-	ULONG Value;
-	ULONG64 Size;
-
-} KERNEL_WRITE_REQUEST, * PKERNEL_WRITE_REQUEST;
-
-typedef struct _KERNEL_SET
-{
-	int size;
-	wchar_t target[256];
-} KERNEL_SET, * PKERNEL_SET;
-
-
-typedef struct _KERNEL_WRITE_REQUEST64
-{
-	ULONG64 ProcessId;
-
-	ULONG64 Address;
-	ULONG64 Value;
-	ULONG64 Size;
-
-} KERNEL_WRITE_REQUEST64, * PKERNEL_WRITE_REQUEST64;
-
 
 // interface for our driver
 class KeInterface
@@ -109,7 +55,7 @@ public:
 			return (type)false;
 	}
 
-	bool setModule(string *target, int size)
+	bool SetModule(string *target, int size)
 	{
 		DWORD Bytes;
 		KERNEL_SET temp;
@@ -189,5 +135,30 @@ public:
 			return Address;
 		else
 			return false;
+	}
+
+	HANDLE InstaGetPID(string* target, int size)
+	{
+		DWORD Bytes;
+		KERNEL_INSTA_GET_PID temp;
+		wstring temp1 = toWstring(*target);
+		wcscpy(temp.target, temp1.c_str());
+		temp.size = size;
+		printf("%ws\n", temp.target);
+		if(DeviceIoControl(hDriver, IO_INSTA_GET_PID, &temp, sizeof(temp),
+			0, 0, &Bytes, NULL))
+			return temp.PID;
+		return 0;
+	}
+
+	DWORD64 InstaGetBaseAddr(HANDLE PID)
+	{
+		DWORD Bytes;
+		KERNEL_INSTA_GET_BASEADDR temp;
+		temp.PID = PID;
+		if (DeviceIoControl(hDriver, IO_INSTA_GET_BASEADDR, &temp, sizeof(temp),
+			0, 0, &Bytes, NULL))
+			return temp.baseaddr;
+		return 0;
 	}
 };
